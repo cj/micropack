@@ -1,0 +1,23 @@
+{
+  "root": true,
+  "extends": [ "standard" ],
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "es6": true,
+    "mocha": true,
+    "node": true
+  },
+  "globals": {
+    "expect": true,
+    "sinon": true,
+    "StatusBar": true,
+    "device": true,
+    "componentHandler": true
+  },
+  "rules": {
+    "no-multi-spaces": 0,
+    "key-spacing": 0,
+    "no-console": 1
+  }
+}
