@@ -1,11 +1,12 @@
 import webpack                     from 'webpack'
 import FriendlyErrorsWebpackPlugin from 'friendly-errors-webpack-plugin'
-import path                        from 'path'
-import babelrc                     from './.babelrc.json'
+import { resolve }                 from 'path'
 
 // This is the Webpack configuration.
 // It is focused on developer experience and fast rebuilds.
 export default (options) => {
+  const { babelrc } = options
+
   return {
     // Webpack can target multiple environments such as `node`,
     // `browser`, and even `electron`. Since Backpack is focused on Node,
@@ -32,14 +33,14 @@ export default (options) => {
     // },
     entry: {
       main: [
-        'webpack-hot-middleware/client', path.resolve('src/entry.js')
+        'webpack-hot-middleware/client', resolve('src/entry.js')
       ]
     },
     // This sets the default output file path, name, and compile target
     // module type. Since we are focused on Node.js, the libraryTarget
     // is set to CommonJS2
     output: {
-      path: path.resolve('dist'),
+      path: resolve('dist'),
       filename: '[name].js',
       sourceMapFilename: '[name].map',
       publicPath: '/'
@@ -64,20 +65,6 @@ export default (options) => {
           query: {
             presets: babelrc.presets,
             plugins: babelrc.plugins
-          }
-        },
-        {
-          test: /\.vue$/,
-          loader: 'vue-loader',
-          options: {
-            postcss: [
-              require('autoprefixer')({
-                browsers: ['last 3 versions']
-              })
-            ],
-            loaders: {
-              js:  `babel-loader?presets[]=${babelrc.presets.join('&presets[]=')}&plugins[]=${babelrc.plugins.join('&plugins[]=')}`
-            }
           }
         }
       ]

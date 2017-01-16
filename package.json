@@ -22,6 +22,7 @@
     "file-loader": "^0.9.0",
     "friendly-errors-webpack-plugin": "^1.1.3",
     "json-loader": "^0.5.4",
+    "lodash": "^4.17.4",
     "micro": "^6.2.0",
     "minimist": "^1.2.0",
     "url-loader": "^0.5.7",
