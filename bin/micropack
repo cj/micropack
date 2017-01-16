@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const babelrc = require(`../.babelrc.json`)
+const babelrc = require('../.babelrc.json')
 const parse   = require('minimist')
 const serve   = require('micro')
 

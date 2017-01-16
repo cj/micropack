@@ -1,0 +1,10 @@
+{
+  "name": "vuejs",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "CJ Lazell",
+  "license": "MIT",
+  "devDependencies": {
+    "micropack": "file:../../"
+  }
+}
