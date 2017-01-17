@@ -25,7 +25,8 @@ const args = parse(process.argv, {
 let [,, func = 'run'] = args._
 
 const help = () => {
-  console.log(`Usage: micro [opts] <file>
+  console.log( // eslint-disable-line no-console
+  `Usage: micro [opts] <file> 
   -H, --host  Host to listen on   [0.0.0.0]
   -p, --port  Port to listen on      [3000]
   -h, --help  Show this help message`)
@@ -43,9 +44,9 @@ if (func === 'run') {
 
   serve(run).listen(port, host, err => {
     if (err) {
-      console.error('micro:', err.stack)
+      console.error('micro:', err.stack) // eslint-disable-line no-console
       process.exit(1)
     }
-    console.log(`> Ready! Listening on http://${host}:${port}`)
+    console.log(`> Ready! Listening on http://${host}:${port}`) // eslint-disable-line no-console
   })
 }
