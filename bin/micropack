@@ -13,7 +13,8 @@ const args = parse(process.argv, {
   alias: {
     H: 'host',
     h: 'help',
-    p: 'port'
+    p: 'port',
+    w: 'watch'
   },
   boolean: ['h'],
   default: {
@@ -26,10 +27,22 @@ let [,, func = 'run'] = args._
 
 const help = () => {
   console.log( // eslint-disable-line no-console
-  `Usage: micro [opts] <file> 
-  -H, --host  Host to listen on   [0.0.0.0]
-  -p, --port  Port to listen on      [3000]
-  -h, --help  Show this help message`)
+  `
+  Usage: micropack (run|build) [options]
+
+  -h, --help - Show this help message
+
+  run - start the server, default command
+
+  [options]
+    -H, --host - Host to listen on [0.0.0.0]
+    -p, --port - Port to listen on [3000]
+
+  build - compile files to [dist]
+
+  [options]
+    -w, --watch - recompile files on save
+  `)
 }
 
 if (args.help) {
