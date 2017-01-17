@@ -1,14 +1,14 @@
 import { send }                         from 'micro'
 import { resolve }                      from 'path'
-import { createReadStream, existsSync } from 'fs'
-import requireDir                       from 'require-dir'
+import { createReadStream }             from 'fs'
 // import qs                   from 'querystring'
 import url                              from 'url'
 import webpack                          from 'webpack'
 import config                           from './config'
 import webpackBase                      from '../webpack/base.config'
+import loadFakeDir                      from './loadFakeDir'
 
-let paths            = {}
+let fakePaths        = {}
 const options        = config()
 const webpackConfig  = options.webpack(webpackBase(options), options)
 const compiler       = webpack(webpackConfig)
@@ -22,13 +22,8 @@ const webpackHot = require('webpack-hot-middleware')(compiler, {
   log: () => {}, path: webpackHotPath, heartbeat: 10 * 1000
 })
 
-if (existsSync(options.dataDir)) {
-  const dataDir = requireDir(options.dataDir)
-
-  for (let [name, data] of Object.entries(dataDir)) {
-    paths[data.path || `/${name}`] = data
-  }
-}
+// load the fake dir
+loadFakeDir(options.fakeDir, fakePaths)
 
 export default async (req, res) => {
   res.status = 200
@@ -38,7 +33,7 @@ export default async (req, res) => {
     res.setHeader('Content-Type', 'text/html')
     send(res, res.status, createReadStream(resolve('src/index.html')))
   }
-  const data = paths[path]
+  const data = fakePaths[path]
 
   if (data) {
     let { headers, status, response } = data
@@ -47,10 +42,12 @@ export default async (req, res) => {
       res.setHeader('Content-Type', 'application/json')
     }
 
-    response = typeof response === 'function' ? response(req, res, data) : response
+    response = typeof response === 'function' ? response.apply(data, [req, res, next]) : response
     status   = status || res.status
 
-    return send(res, status, response)
+    if (response) {
+      send(res, status, response)
+    }
   } else {
     switch (path) {
       case '/':
