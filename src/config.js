@@ -7,10 +7,12 @@ const projectDir           = resolve('./')
 const srcDir               = `${projectDir}/src`
 const projectNodeModules   = `${projectDir}/node_modules`
 const microPackNodeModules = resolve(__dirname, '../node_modules')
+const dataDir              = `${projectDir}/data`
 
 const defaultOptions = {
   projectDir,
   srcDir,
+  dataDir,
   babelrc,
   projectNodeModules,
   microPackNodeModules,

@@ -16,7 +16,7 @@ const args = parse(process.argv, {
     p: 'port',
     w: 'watch'
   },
-  boolean: ['h'],
+  boolean: ['h', 'w'],
   default: {
     H: '0.0.0.0',
     p: 3000
@@ -28,7 +28,7 @@ let [,, func = 'run'] = args._
 const help = () => {
   console.log( // eslint-disable-line no-console
   `
-  Usage: micropack (run|build) [options]
+  Usage: micropack (run|build|init) [options]
 
   -h, --help - Show this help message
 
@@ -42,6 +42,12 @@ const help = () => {
 
   [options]
     -w, --watch - recompile files on save
+
+  init - create a new project
+
+  [options]
+    -f, --framework - choose a framework [vuejs]
+    -t, --template  - template [github|url]
   `)
 }
 
