@@ -1,6 +1,4 @@
-import { vuejs } from 'micropack/src/webpack'
-
-console.log(vuejs)
+import { vuejs } from 'micropack/webpack'
 
 export default {
   webpack: vuejs

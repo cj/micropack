@@ -1,20 +1,19 @@
-import { send }                from 'micro'
-import { resolve }             from 'path'
-import { createReadStream }    from 'fs'
+import { send }             from 'micro'
+import { resolve }          from 'path'
+import { createReadStream } from 'fs'
 // import qs                   from 'querystring'
-import url                     from 'url'
-import webpack                 from 'webpack'
-import * as webpackConfig from './webpack'
+import url                  from 'url'
+import webpack              from 'webpack'
+import config               from './config'
+import webpackBase          from '../webpack/base.config'
 
-const { options } = webpackConfig
-
-let config = options.webpack(webpackConfig.base, options)
-
-const compiler       = webpack(config)
+const options        = config()
+const webpackConfig  = options.webpack(webpackBase(options), options)
+const compiler       = webpack(webpackConfig)
 const webpackHotPath = '/__webpack_hmr'
 
 const webpackDev = require('webpack-dev-middleware')(compiler, {
-  noInfo: true, publicPath: config.output.publicPath, quiet: true
+  noInfo: true, publicPath: webpackConfig.output.publicPath, quiet: true
 })
 
 const webpackHot = require('webpack-hot-middleware')(compiler, {
