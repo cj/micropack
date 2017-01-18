@@ -1,26 +1,30 @@
 import glob     from 'glob'
 import chokidar from 'chokidar'
 
-export default (fakeDir, fakePaths) => {
-  const files = glob.sync('**/*.js', {
-    cwd: fakeDir
-  })
+export default (fakeDir, router) => {
+  const files = glob.sync('**/*.js', { cwd: fakeDir })
 
   files.forEach(fileName => {
-    let filePath  = `${fakeDir}/${fileName}`
-    let data      = require(filePath)
-    let path      = data.path || `/${fileName.replace('.js', '')}`
+    let filePath = `${fakeDir}/${fileName}`
+    let data     = require(filePath)
+    let path     = data.path || `/${fileName.replace('.js', '')}`
+
     data.filePath = filePath
 
-    fakePaths[path] = data
+    router.add(path, data)
   })
 
   const updateFakeFile = filePath => {
     let path = filePath.replace(fakeDir, '').replace('.js', '')
-    // clear the cache
+    let oldData = require(filePath)
+    // clean routes, so we don't end up with ones you don't want
+    router.remove(oldData.path || path)
+    // clear the require cache
     delete require.cache[filePath]
-    // load new data
-    fakePaths[path] = require(filePath)
+    // require new data
+    let data = require(filePath)
+
+    router.add(data.path || path, data)
   }
 
   const watcher = chokidar.watch(fakeDir)

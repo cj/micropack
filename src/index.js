@@ -1,14 +1,15 @@
-import { send }                         from 'micro'
-import { resolve }                      from 'path'
-import { createReadStream }             from 'fs'
+import { send }             from 'micro'
+import { resolve }          from 'path'
+import { createReadStream } from 'fs'
 // import qs                   from 'querystring'
-import url                              from 'url'
-import webpack                          from 'webpack'
-import config                           from './config'
-import webpackBase                      from '../webpack/base.config'
-import loadFakeDir                      from './loadFakeDir'
+import url                  from 'url'
+import webpack              from 'webpack'
+import config               from './config'
+import webpackBase          from '../webpack/base.config'
+import loadFakeDir          from './loadFakeDir'
+import Router               from './router'
 
-let fakePaths        = {}
+const router         = new Router()
 const options        = config()
 const webpackConfig  = options.webpack(webpackBase(options), options)
 const compiler       = webpack(webpackConfig)
@@ -23,7 +24,7 @@ const webpackHot = require('webpack-hot-middleware')(compiler, {
 })
 
 // load the fake dir
-loadFakeDir(options.fakeDir, fakePaths)
+loadFakeDir(options.fakeDir, router)
 
 export default async (req, res) => {
   res.status = 200
@@ -33,7 +34,7 @@ export default async (req, res) => {
     res.setHeader('Content-Type', 'text/html')
     send(res, res.status, createReadStream(resolve('src/index.html')))
   }
-  const data = fakePaths[path]
+  const data = router.run(path)
 
   if (data) {
     let { headers, status, response } = data

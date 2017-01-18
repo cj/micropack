@@ -2,3 +2,5 @@
 .tern-port
 node_modules
 tmp
+typescript
+npm-debug.log

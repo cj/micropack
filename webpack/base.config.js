@@ -10,7 +10,7 @@ export default function (options) {
   let entryMain = [resolve(options.main)]
 
   if (process.env.NODE_ENV === 'development') {
-    entryMain = [...entryMain, 'webpack-hot-middleware/client']
+    entryMain = ['webpack-hot-middleware/client', ...entryMain]
   }
 
   return {
