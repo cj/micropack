@@ -1,5 +1,6 @@
 import webpack                     from 'webpack'
 import FriendlyErrorsWebpackPlugin from 'friendly-errors-webpack-plugin'
+import HtmlWebpackPlugin           from 'html-webpack-plugin'
 import { resolve }                 from 'path'
 
 // This is the Webpack configuration.
@@ -31,11 +32,19 @@ export default function (options) {
     // Since we are wrapping our own webpack config, we need to properly resolve
     // Backpack's and the given user's node_modules without conflict.
     resolve: {
-      extensions: ['.js', '.json'],
-      modules: [options.projectNodeModules, options.microPackNodeModules]
+      extensions: ['.js', '.json', '.html'],
+      modules: [
+        options.projectNodeModules,
+        options.microPackNodeModules,
+        options.srcDir
+      ]
     },
     resolveLoader: {
-      modules: [options.projectNodeModules, options.microPackNodeModules]
+      modules: [
+        options.projectNodeModules,
+        options.microPackNodeModules,
+        options.srcDir
+      ]
     },
     entry: {
       main: entryMain
@@ -70,6 +79,45 @@ export default function (options) {
             presets: babelrc.presets,
             plugins: babelrc.plugins
           }
+        },
+        {
+          test: /.*\.(gif|png|jpe?g|svg)$/i,
+          loaders: [
+            'file-loader?name=assets/[name].[ext]',
+            {
+              loader: 'image-webpack-loader',
+              query: {
+                progressive: true,
+                optimizationLevel: 7,
+                interlaced: false,
+                mozjpeg: {
+                  quality: 65
+                },
+                pngquant:{
+                  quality: '65-90',
+                  speed: 4
+                },
+                svgo:{
+                  plugins: [
+                    {
+                      removeViewBox: false
+                    },
+                    {
+                      removeEmptyAttrs: false
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+          loader: 'url-loader',
+          options: {
+            limit: 10000,
+            name: 'fonts/[name].[ext]'
+          }
         }
       ]
     },
@@ -88,7 +136,22 @@ export default function (options) {
       // It does not actually swallow errors. Instead, it just prevents
       // Webpack from printing out compile time stats to the console.
       new webpack.HotModuleReplacementPlugin(),
-      new webpack.NoEmitOnErrorsPlugin()
+      new webpack.NoEmitOnErrorsPlugin(),
+      new HtmlWebpackPlugin({
+        filename: 'index.html',
+        hash: false,
+        template: `${options.srcDir}/index.html`,
+        inject: true,
+        minify: {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeAttributeQuotes: true
+          // more options:
+          // https://github.com/kangax/html-minifier#options-quick-reference
+        },
+        // necessary to consistently work with multiple chunks via CommonsChunkPlugin
+        chunksSortMode: 'dependency'
+      })
     ]
   }
 }

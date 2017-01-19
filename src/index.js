@@ -30,9 +30,13 @@ export default async (req, res) => {
   res.status = 200
 
   const { path } = url.parse(req.url)
+  const method   = req.method
   const next     = () => {
-    res.setHeader('Content-Type', 'text/html')
-    send(res, res.status, createReadStream(resolve('src/index.html')))
+    webpackDev(req, res, () => {
+      // if the file doesn't exist in webpack, load index.html
+      req.url = '/'
+      webpackDev(req, res)
+    })
   }
   const data = router.run(path)
 
@@ -43,6 +47,8 @@ export default async (req, res) => {
       res.setHeader('Content-Type', 'application/json')
     }
 
+    if (data[method]) { response = data[method] }
+
     response = typeof response === 'function' ? response.apply(data, [req, res, next]) : response
     status   = status || res.status
 
@@ -51,14 +57,12 @@ export default async (req, res) => {
     }
   } else {
     switch (path) {
-      case '/':
-        return next()
       case '/favicon.ico':
         return send(res, res.status)
       case webpackHotPath:
         return webpackHot(req, res, next)
       default:
-        return webpackDev(req, res, next)
+        return next()
     }
   }
 }
