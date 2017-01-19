@@ -1,6 +1,4 @@
 import { send }             from 'micro'
-import { resolve }          from 'path'
-import { createReadStream } from 'fs'
 // import qs                   from 'querystring'
 import url                  from 'url'
 import webpack              from 'webpack'
