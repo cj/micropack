@@ -1,21 +1,25 @@
 import { resolve }    from 'path'
 import { existsSync } from 'fs'
 import _merge         from 'lodash/merge'
-import babelrc        from '../.babelrc.json'
+import babelrc        from '../babelrc.json'
 
 const projectDir           = resolve('./')
+const microPackDir         = resolve(__dirname, '../')
 const srcDir               = `${projectDir}/src`
 const projectNodeModules   = `${projectDir}/node_modules`
-const microPackNodeModules = resolve(__dirname, '../node_modules')
 const fakeDir              = `${projectDir}/fake`
+const microPackNodeModules = `${microPackDir}/node_modules`
+const tmpDir               = `${projectNodeModules}/.micropack`
 
 const defaultOptions = {
   projectDir,
   srcDir,
   fakeDir,
   babelrc,
+  microPackDir,
   projectNodeModules,
   microPackNodeModules,
+  tmpDir,
   main: 'src/entry.js',
   webpack: (config) => { return config }
 }

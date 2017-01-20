@@ -1,25 +1,34 @@
 import { send }             from 'micro'
 // import qs                   from 'querystring'
 import url                  from 'url'
-import webpack              from 'webpack'
 import config               from './config'
-import webpackBase          from '../webpack/base.config'
 import loadFakeDir          from './loadFakeDir'
 import Router               from './router'
+import webpack              from 'webpack'
+import webpackBase          from '../webpack/base.config'
+
+let webpackConfig
+let compiler
+let webpackHotPath
+let webpackDev
+let webpackHot
 
 const router         = new Router()
 const options        = config()
-const webpackConfig  = options.webpack(webpackBase(options), options)
-const compiler       = webpack(webpackConfig)
-const webpackHotPath = '/__webpack_hmr'
 
-const webpackDev = require('webpack-dev-middleware')(compiler, {
-  noInfo: true, publicPath: webpackConfig.output.publicPath, quiet: true
-})
+if (process.env.NODE_ENV !== 'test') {
+  webpackConfig  = options.webpack(webpackBase(options), options)
+  compiler       = webpack(webpackConfig)
+  webpackHotPath = '/__webpack_hmr'
 
-const webpackHot = require('webpack-hot-middleware')(compiler, {
-  log: () => {}, path: webpackHotPath, heartbeat: 10 * 1000
-})
+  webpackDev = require('webpack-dev-middleware')(compiler, {
+    noInfo: true, publicPath: webpackConfig.output.publicPath, quiet: true
+  })
+
+  webpackHot = require('webpack-hot-middleware')(compiler, {
+    log: () => {}, path: webpackHotPath, heartbeat: 10 * 1000
+  })
+}
 
 // load the fake dir
 loadFakeDir(options.fakeDir, router)
@@ -53,7 +62,7 @@ export default async (req, res) => {
     if (response) {
       send(res, status, response)
     }
-  } else {
+  } else if (process.env.NODE_ENV !== 'test') {
     switch (path) {
       case '/favicon.ico':
         return send(res, res.status)

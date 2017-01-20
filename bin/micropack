@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-const babelrc = require('../.babelrc.json')
+const babelrc = require('../babelrc.json')
 const parse   = require('minimist')
 const serve   = require('micro')
 
 require('babel-register')({
   presets: babelrc.presets,
-  plugins: babelrc.plugins
+  plugins: babelrc.plugins,
+  auxiliaryCommentBefore: babelrc.auxiliaryCommentBefore,
+  env: babelrc.env
 })
 
 const args = parse(process.argv, {
@@ -14,9 +16,10 @@ const args = parse(process.argv, {
     H: 'host',
     h: 'help',
     p: 'port',
-    w: 'watch'
+    w: 'watch',
+    m: 'micro'
   },
-  boolean: ['h', 'w'],
+  boolean: ['h', 'w', 'm'],
   default: {
     H: '0.0.0.0',
     p: 3000
@@ -48,15 +51,16 @@ const help = () => {
   [options]
     -f, --framework - choose a framework [vuejs]
     -t, --template  - template [github|url]
+
+  karma - run tests using karma, mocha and chai
+
+  [options]
+    --help      - to see all karma options
+    -m, --micro - run the micro fake server
   `)
 }
 
-if (args.help) {
-  help()
-  process.exit(0)
-}
-
-if (func === 'run') {
+const run = () => {
   process.env.NODE_ENV = process.env.NODE_ENV || 'development'
   const run            = require('../src/index')
   const { port, host } = args
@@ -68,4 +72,47 @@ if (func === 'run') {
     }
     console.log(`> Ready! Listening on http://${host}:${port}`) // eslint-disable-line no-console
   })
+}
+
+switch (func) {
+  case 'run':
+    run()
+    break
+  case 'karma':
+    delete process.argv.splice(2, 1)
+
+    process.env.NODE_ENV = process.env.NODE_ENV || 'test'
+    const cli            = require('karma/lib/cli')
+
+    if (process.argv.includes('start') && !args.help) {
+      const _template                         = require('lodash/template')
+      const { tmpDir, srcDir,  microPackDir } = require('../src/config')()
+      const entryFile                         = `${tmpDir}/karma.entry.js`
+
+      // make sure we use the micropack karma config
+      process.argv.splice(3, 0, `${microPackDir}/karma/config.js`)
+
+      const { existsSync, mkdirSync, writeFileSync, readFileSync } = require('fs')
+
+      if (!existsSync(tmpDir)) {
+        mkdirSync(tmpDir)
+      }
+
+      const entryTemplate     = readFileSync(`${microPackDir}/karma/entry.template.js`, 'utf8')
+      const entryFileCompiled = _template(entryTemplate, { interpolate: /{{([\s\S]+?)}}/g })({
+        srcDir
+      })
+
+      writeFileSync(entryFile, entryFileCompiled, 'utf8')
+    }
+
+    if (args.micro) { run() }
+    cli.run()
+    break
+  default:
+    if (args.help) {
+      help()
+      process.exit(0)
+    }
+    break
 }

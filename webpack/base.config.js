@@ -15,6 +15,7 @@ export default function (options) {
   }
 
   return {
+    // context: options.projectDir,
     // Webpack can target multiple environments such as `node`,
     // `browser`, and even `electron`. Since Backpack is focused on Node,
     // we set the default target accordingly.
@@ -77,7 +78,9 @@ export default function (options) {
           ],
           query: {
             presets: babelrc.presets,
-            plugins: babelrc.plugins
+            plugins: babelrc.plugins,
+            auxiliaryCommentBefore: babelrc.auxiliaryCommentBefore,
+            env: babelrc.env
           }
         },
         {
