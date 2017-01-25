@@ -1,5 +1,5 @@
-const webpackConfig                  = require('../webpack/config')
-const { tmpDir, srcDir, projectDir } = require('../src/config')()
+const webpackConfig          = require('../webpack/config')
+const { tmpDir, projectDir } = require('../src/config')()
 
 module.exports = karma => {
   let config = {
@@ -15,7 +15,8 @@ module.exports = karma => {
       'karma-mocha',
       'karma-chai',
       'karma-sinon',
-      'karma-nightmare',
+      'karma-mocha-reporter',
+      'karma-chrome-launcher',
       'karma-coverage'
     ],
 
@@ -29,8 +30,7 @@ module.exports = karma => {
     },
 
     reporters: [
-      karma.singleRun ? 'mocha' : 'dots',
-      'coverage'
+      (karma.singleRun ? 'mocha' : 'dots'), 'coverage'
     ],
 
     coverageReporter: {
@@ -48,13 +48,17 @@ module.exports = karma => {
 
     singleRun: false,
 
-    browsers: ['Nightmare'],
+    browsers: ['Chrome'],
 
     nightmareOptions: {
       width: 1920,
       height: 1080,
       show: false
-    }
+    },
+
+    // Concurrency level
+    // how many browser should be started simultaneous
+    // concurrency: Infinity
   }
 
   config.preprocessors[`${tmpDir}/karma.entry.js`] = ['webpack', 'sourcemap']

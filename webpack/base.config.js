@@ -1,32 +1,20 @@
-import webpack                     from 'webpack'
-import FriendlyErrorsWebpackPlugin from 'friendly-errors-webpack-plugin'
-import HtmlWebpackPlugin           from 'html-webpack-plugin'
-import { resolve }                 from 'path'
+import webpack     from 'webpack'
+import { resolve } from 'path'
 
 // This is the Webpack configuration.
 // It is focused on developer experience and fast rebuilds.
 export default function (options) {
-  const { babelrc } = options
+  const { babelrc, srcDir, projectDir } = options
 
-  let entryMain = [resolve(options.main)]
-
-  if (process.env.NODE_ENV === 'development') {
-    entryMain = ['webpack-hot-middleware/client', ...entryMain]
-  }
+  const include = [
+    srcDir,
+    `${projectDir}/node_modules/quasar-framework`,
+    `${projectDir}/node_modules/vuex-form`,
+    `${projectDir}/node_modules/roboto-fontface`,
+    `${projectDir}/node_modules/material-design-icons`
+  ]
 
   return {
-    // context: options.projectDir,
-    // Webpack can target multiple environments such as `node`,
-    // `browser`, and even `electron`. Since Backpack is focused on Node,
-    // we set the default target accordingly.
-    target: 'web',
-    // The benefit of Webpack over just using babel-cli or babel-node
-    // command is sourcemap support. Although it slows down compilation,
-    // it makes debugging dramatically easier.
-    devtool: 'source-map',
-    // As of Webpack 2 beta, Webpack provides performance hints.
-    // Since we are not targeting a browser, bundle size is not relevant.
-    // Additionally, the performance hints clutter up our nice error messages.
     performance: {
       hints: false
     },
@@ -34,6 +22,9 @@ export default function (options) {
     // Backpack's and the given user's node_modules without conflict.
     resolve: {
       extensions: ['.js', '.json', '.html'],
+      alias: {
+        '~': options.srcDir
+      },
       modules: [
         options.projectNodeModules,
         options.microPackNodeModules,
@@ -43,21 +34,11 @@ export default function (options) {
     resolveLoader: {
       modules: [
         options.projectNodeModules,
-        options.microPackNodeModules,
-        options.srcDir
+        options.microPackNodeModules
       ]
     },
     entry: {
-      main: entryMain
-    },
-    // This sets the default output file path, name, and compile target
-    // module type. Since we are focused on Node.js, the libraryTarget
-    // is set to CommonJS2
-    output: {
-      path: resolve('dist'),
-      filename: '[name].js',
-      sourceMapFilename: '[name].map',
-      publicPath: '/'
+      main: [resolve(options.main)]
     },
     // Define a few default Webpack loaders. Notice the use of the new
     // Webpack 2 configuration: module.rules instead of module.loaders
@@ -66,24 +47,18 @@ export default function (options) {
         // This is the development configuration.
         // It is focused on developer experience and fast rebuilds.
         {
+          include,
           test: /\.json$/,
           loader: 'json-loader'
         },
         // Process JS with Babel (transpiles ES6 code into ES5 code).
         {
+          include,
           test: /\.(js|jsx)$/,
-          loader: 'babel-loader',
-          exclude: [
-            /node_modules/
-          ],
-          query: {
-            presets: babelrc.presets,
-            plugins: babelrc.plugins,
-            auxiliaryCommentBefore: babelrc.auxiliaryCommentBefore,
-            env: babelrc.env
-          }
+          loader: 'babel-loader'
         },
         {
+          include,
           test: /.*\.(gif|png|jpe?g|svg)$/i,
           loaders: [
             'file-loader?name=assets/[name].[ext]',
@@ -115,6 +90,7 @@ export default function (options) {
           ]
         },
         {
+          include,
           test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
           loader: 'url-loader',
           options: {
@@ -131,29 +107,6 @@ export default function (options) {
       // want to configure __DEV__ as a global variable accordingly.
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-      }),
-      // The FriendlyErrorsWebpackPlugin (when combined with source-maps)
-      // gives Backpack its human-readable error messages.
-      new FriendlyErrorsWebpackPlugin(),
-      // This plugin is awkwardly named. Use to be called NoErrorsPlugin.
-      // It does not actually swallow errors. Instead, it just prevents
-      // Webpack from printing out compile time stats to the console.
-      new webpack.HotModuleReplacementPlugin(),
-      new webpack.NoEmitOnErrorsPlugin(),
-      new HtmlWebpackPlugin({
-        filename: 'index.html',
-        hash: false,
-        template: `${options.srcDir}/index.html`,
-        inject: true,
-        minify: {
-          removeComments: true,
-          collapseWhitespace: true,
-          removeAttributeQuotes: true
-          // more options:
-          // https://github.com/kangax/html-minifier#options-quick-reference
-        },
-        // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-        chunksSortMode: 'dependency'
       })
     ]
   }

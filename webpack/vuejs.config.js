@@ -1,10 +1,20 @@
 export default (options) => {
-  const { babelrc } = options
+  const { babelrc, srcDir, projectDir } = options
+
+  const include = [
+    srcDir,
+    `${projectDir}/node_modules/quasar-framework`,
+    `${projectDir}/node_modules/vuex-form`,
+    `${projectDir}/node_modules/roboto-fontface`,
+    `${projectDir}/node_modules/vue2-google-maps`,
+    `${projectDir}/node_modules/material-design-icons`
+  ]
 
   return {
     module: {
       rules: [
         {
+          include,
           test: /\.vue$/,
           loader: 'vue-loader',
           options: {
@@ -12,10 +22,7 @@ export default (options) => {
               require('autoprefixer')({
                 browsers: ['last 3 versions']
               })
-            ],
-            loaders: {
-              js:  `babel-loader?presets[]=${babelrc.presets.join('&presets[]=')}&plugins[]=${babelrc.plugins.join('&plugins[]=')}`
-            }
+            ]
           }
         }
       ]
