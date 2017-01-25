@@ -1,6 +1,15 @@
 import webpackBase from './base.config'
-import config      from '../src/config'
+import config      from '../lib/config'
+import deepMerge   from 'n-deep-merge'
 
-const options = config()
+const options     = config()
+let webpackConfig = webpackBase(options)
 
-export default options.webpack(webpackBase(options), options)
+options.config.forEach(name => {
+  let configFunc = require(`./${name}.config`)
+  let newConfig  = configFunc(options)
+
+  webpackConfig = deepMerge(webpackConfig, newConfig)
+})
+
+export default options.webpack(webpackConfig, options)

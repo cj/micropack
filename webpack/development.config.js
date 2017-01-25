@@ -1,7 +1,6 @@
 import webpack                     from 'webpack'
 import FriendlyErrorsWebpackPlugin from 'friendly-errors-webpack-plugin'
 import HtmlWebpackPlugin           from 'html-webpack-plugin'
-import { resolve }                 from 'path'
 
 export default (options) => {
   return {
@@ -18,7 +17,7 @@ export default (options) => {
     // Since we are not targeting a browser, bundle size is not relevant.
     // Additionally, the performance hints clutter up our nice error messages.
     entry: {
-      main: ['webpack-hot-middleware/client', resolve(options.main)]
+      main: ['webpack-hot-middleware/client']
     },
     output: {
       filename: '[name].js',
@@ -26,13 +25,6 @@ export default (options) => {
       publicPath: '/'
     },
     plugins: [
-      // We define some sensible Webpack flags. One for the Node environment,
-      // and one for dev / production. These become global variables. Note if
-      // you use something like eslint or standard in your editor, you will
-      // want to configure __DEV__ as a global variable accordingly.
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-      }),
       // The FriendlyErrorsWebpackPlugin (when combined with source-maps)
       // gives Backpack its human-readable error messages.
       new FriendlyErrorsWebpackPlugin(),

@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-const babelrc = require('../babelrc.json')
-const parse   = require('minimist')
-const serve   = require('micro')
+const babelrc     = require('../babelrc.json')
+const parse       = require('minimist')
+const serve       = require('micro')
+const { resolve } = require('path')
+const projectDir  = resolve('./')
 
 require('babel-register')({
   presets: babelrc.presets,
@@ -17,9 +19,9 @@ const args = parse(process.argv, {
     h: 'help',
     p: 'port',
     w: 'watch',
-    m: 'micro'
+    f: 'fake-only'
   },
-  boolean: ['h', 'w', 'm'],
+  boolean: ['h', 'w', 'f'],
   default: {
     H: '0.0.0.0',
     p: 3000
@@ -60,12 +62,23 @@ const help = () => {
   `)
 }
 
+switch (func) {
+  case 'karma':
+    process.env.NODE_ENV = process.env.NODE_ENV || 'test'
+    break
+  default:
+    process.env.NODE_ENV = process.env.NODE_ENV || 'development'
+    break
+}
+
+require('dotenv').config({ path: `${projectDir}/.env` })
+require('dotenv').config({ path: `${projectDir}/.env.${process.env.NODE_ENV}` })
+
 const run = () => {
-  process.env.NODE_ENV = process.env.NODE_ENV || 'development'
-  const run            = require('../src/index')
+  const micro          = require('../lib/index')
   const { port, host } = args
 
-  serve(run).listen(port, host, err => {
+  serve(micro(args)).listen(port, host, err => {
     if (err) {
       console.error('micro:', err.stack) // eslint-disable-line no-console
       process.exit(1)
@@ -80,13 +93,11 @@ switch (func) {
     break
   case 'karma':
     delete process.argv.splice(2, 1)
-
-    process.env.NODE_ENV = process.env.NODE_ENV || 'test'
     const cli            = require('karma/lib/cli')
 
     if (process.argv.includes('start') && !args.help) {
       const _template                         = require('lodash/template')
-      const { tmpDir, srcDir,  microPackDir } = require('../src/config')()
+      const { tmpDir, srcDir,  microPackDir } = require('../lib/config')()
       const entryFile                         = `${tmpDir}/karma.entry.js`
 
       // make sure we use the micropack karma config

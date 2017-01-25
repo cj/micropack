@@ -1,20 +1,13 @@
-import webpack     from 'webpack'
-import { resolve } from 'path'
+import webpack            from 'webpack'
+import { resolve }        from 'path'
+import CommonsChunkPlugin from 'webpack/lib/optimize/CommonsChunkPlugin'
 
 // This is the Webpack configuration.
 // It is focused on developer experience and fast rebuilds.
 export default function (options) {
-  const { babelrc, srcDir, projectDir } = options
+  const { babelrc, include } = options
 
-  const include = [
-    srcDir,
-    `${projectDir}/node_modules/quasar-framework`,
-    `${projectDir}/node_modules/vuex-form`,
-    `${projectDir}/node_modules/roboto-fontface`,
-    `${projectDir}/node_modules/material-design-icons`
-  ]
-
-  return {
+  let config = {
     performance: {
       hints: false
     },
@@ -55,7 +48,13 @@ export default function (options) {
         {
           include,
           test: /\.(js|jsx)$/,
-          loader: 'babel-loader'
+          loader: 'babel-loader',
+          query: {
+            presets: babelrc.presets,
+            plugins: babelrc.plugins,
+            auxiliaryCommentBefore: babelrc.auxiliaryCommentBefore,
+            env: babelrc.env
+          }
         },
         {
           include,
@@ -100,14 +99,26 @@ export default function (options) {
         }
       ]
     },
-    plugins: [
-      // We define some sensible Webpack flags. One for the Node environment,
-      // and one for dev / production. These become global variables. Note if
-      // you use something like eslint or standard in your editor, you will
-      // want to configure __DEV__ as a global variable accordingly.
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-      })
-    ]
+    plugins: []
   }
+
+  let envs = {}
+
+  if (options.env) {
+    options.env.forEach(name => {
+      envs[`process.env.${name}`] = JSON.stringify(process.env[name])
+    })
+  }
+
+  config.plugins.push(new webpack.DefinePlugin(envs))
+
+  if (options.vendor.length) {
+    config.entry.vendor = options.vendor
+
+    if (process.env.NODE_ENV !== 'test') {
+      config.plugins.push(new CommonsChunkPlugin({ name: 'vendor' }))
+    }
+  }
+
+  return config
 }
