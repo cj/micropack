@@ -12,7 +12,7 @@ export default (options) => {
     // The benefit of Webpack over just using babel-cli or babel-node
     // command is sourcemap support. Although it slows down compilation,
     // it makes debugging dramatically easier.
-    devtool: 'eval-source-map',
+    devtool: 'source-map',
     // As of Webpack 2 beta, Webpack provides performance hints.
     // Since we are not targeting a browser, bundle size is not relevant.
     // Additionally, the performance hints clutter up our nice error messages.
@@ -38,13 +38,6 @@ export default (options) => {
         hash: false,
         template: `${options.srcDir}/index.html`,
         inject: true,
-        minify: {
-          removeComments: true,
-          collapseWhitespace: true,
-          removeAttributeQuotes: true
-          // more options:
-          // https://github.com/kangax/html-minifier#options-quick-reference
-        },
         // necessary to consistently work with multiple chunks via CommonsChunkPlugin
         chunksSortMode: 'dependency'
       })

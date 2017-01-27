@@ -6,11 +6,12 @@
     "array-includes",
     "transform-runtime",
     "transform-object-assign",
-    "transform-decorators-legacy"
+    "transform-decorators-legacy",
+    "transform-imports"
   ],
-  "auxiliaryCommentBefore": "istanbul ignore next",
   "env": {
     "test": {
+      "auxiliaryCommentBefore": "istanbul ignore next",
       "plugins": [
         ["istanbul", {
           "exclude": ["**/*.spec.(js|vue)", "**/_specs"],

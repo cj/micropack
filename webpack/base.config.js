@@ -37,13 +37,6 @@ export default function (options) {
     // Webpack 2 configuration: module.rules instead of module.loaders
     module: {
       rules: [
-        // This is the development configuration.
-        // It is focused on developer experience and fast rebuilds.
-        {
-          include,
-          test: /\.json$/,
-          loader: 'json-loader'
-        },
         // Process JS with Babel (transpiles ES6 code into ES5 code).
         {
           include,
@@ -52,9 +45,15 @@ export default function (options) {
           query: {
             presets: babelrc.presets,
             plugins: babelrc.plugins,
-            auxiliaryCommentBefore: babelrc.auxiliaryCommentBefore,
             env: babelrc.env
           }
+        },
+        // This is the development configuration.
+        // It is focused on developer experience and fast rebuilds.
+        {
+          include,
+          test: /\.json$/,
+          loader: 'json-loader'
         },
         {
           include,

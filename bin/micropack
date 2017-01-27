@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-const babelrc     = require('../babelrc.json')
-const parse       = require('minimist')
-const serve       = require('micro')
-const { resolve } = require('path')
-const projectDir  = resolve('./')
+const babelrc                      = require('../babelrc.json')
+const parse                        = require('minimist')
+const { resolve }                  = require('path')
+const { readFileSync, existsSync } = require('fs')
+
+const projectDir = resolve('./')
 
 require('babel-register')({
   presets: babelrc.presets,
@@ -66,59 +67,40 @@ switch (func) {
   case 'karma':
     process.env.NODE_ENV = process.env.NODE_ENV || 'test'
     break
+  case 'build':
+    process.env.NODE_ENV = process.env.NODE_ENV || 'production'
+    break
   default:
     process.env.NODE_ENV = process.env.NODE_ENV || 'development'
     break
 }
 
-require('dotenv').config({ path: `${projectDir}/.env` })
-require('dotenv').config({ path: `${projectDir}/.env.${process.env.NODE_ENV}` })
+const dotenv  = require('dotenv')
+const envFile = resolve(`${projectDir}/.env.${process.env.NODE_ENV}`)
 
-const run = () => {
-  const micro          = require('../lib/index')
-  const { port, host } = args
+dotenv.config({ path: `${projectDir}/.env` })
 
-  serve(micro(args)).listen(port, host, err => {
-    if (err) {
-      console.error('micro:', err.stack) // eslint-disable-line no-console
-      process.exit(1)
-    }
-    console.log(`> Ready! Listening on http://${host}:${port}`) // eslint-disable-line no-console
-  })
+if (existsSync(envFile)) {
+  const envConfig = dotenv.parse(readFileSync(envFile))
+
+  for (var k in envConfig) {
+    process.env[k] = envConfig[k]
+  }
 }
+
+console.log(process.env.ACD_API_URL)
+
+const micropack = require('../lib/index')(args)
 
 switch (func) {
   case 'run':
-    run()
+    micropack.run()
+    break
+  case 'build':
+    micropack.build()
     break
   case 'karma':
-    delete process.argv.splice(2, 1)
-    const cli            = require('karma/lib/cli')
-
-    if (process.argv.includes('start') && !args.help) {
-      const _template                         = require('lodash/template')
-      const { tmpDir, srcDir,  microPackDir } = require('../lib/config')()
-      const entryFile                         = `${tmpDir}/karma.entry.js`
-
-      // make sure we use the micropack karma config
-      process.argv.splice(3, 0, `${microPackDir}/karma/config.js`)
-
-      const { existsSync, mkdirSync, writeFileSync, readFileSync } = require('fs')
-
-      if (!existsSync(tmpDir)) {
-        mkdirSync(tmpDir)
-      }
-
-      const entryTemplate     = readFileSync(`${microPackDir}/karma/entry.template.js`, 'utf8')
-      const entryFileCompiled = _template(entryTemplate, { interpolate: /{{([\s\S]+?)}}/g })({
-        srcDir
-      })
-
-      writeFileSync(entryFile, entryFileCompiled, 'utf8')
-    }
-
-    if (args.micro) { run() }
-    cli.run()
+    micropack.karma()
     break
   default:
     if (args.help) {
