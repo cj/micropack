@@ -8,6 +8,7 @@ const { readFileSync, existsSync } = require('fs')
 const projectDir = resolve('./')
 
 require('babel-register')({
+  ignore: /node_modules\/(?!micropack)/,
   presets: babelrc.presets,
   plugins: babelrc.plugins,
   auxiliaryCommentBefore: babelrc.auxiliaryCommentBefore,
@@ -87,8 +88,6 @@ if (existsSync(envFile)) {
     process.env[k] = envConfig[k]
   }
 }
-
-console.log(process.env.ACD_API_URL)
 
 const micropack = require('../lib/index')(args)
 
