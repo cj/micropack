@@ -1,5 +1,5 @@
 const webpackConfig          = require('../webpack/config')
-const { tmpDir, projectDir } = require('../src/config')()
+const { tmpDir, srcDir, projectDir } = require('../lib/config')()
 
 module.exports = karma => {
   let config = {

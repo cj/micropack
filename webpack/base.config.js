@@ -16,7 +16,8 @@ export default function (options) {
     resolve: {
       extensions: ['.js', '.json', '.html'],
       alias: {
-        '~': options.srcDir
+        '~': options.srcDir,
+        'fake': options.fakeDir
       },
       modules: [
         options.projectNodeModules,

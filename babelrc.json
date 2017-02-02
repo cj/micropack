@@ -1,6 +1,11 @@
 {
   "presets": ["es2015", "es2017", "stage-0"],
   "plugins": [
+    ["module-resolver", {
+      "alias": {
+        "~": "./src"
+      }
+    }],
     "external-helpers",
     "add-module-exports",
     "array-includes",

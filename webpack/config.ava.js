@@ -9,7 +9,7 @@ const deepMerge   = require('n-deep-merge')
 const webpackBase = require('./base.config')
 const webpackNode = require('./node.config')
 const webpackVue  = require('./vuejs.config')
-const config      = require('../src/config')
+const config      = require('../lib/config')
 const options     = config()
 
 let webpackConfig = webpackBase(options)

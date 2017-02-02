@@ -1,6 +1,8 @@
 export default (options) => {
   const { babelrc, include } = options
 
+  babelrc.plugins.shift()
+
   return {
     module: {
       rules: [
